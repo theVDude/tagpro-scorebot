@@ -1,0 +1,13 @@
+<script src="/socket.io/socket.io.js"></script>
+<script>
+  var socket = io.connect('http://home.shadomoonaussies.com:3030');
+  socket.on('news', function (data) {
+    console.log(data);
+    socket.emit('message', { 'red': 0, 'blue': 1 });
+  });
+
+  function helloworld () {
+    socket.emit('message', "clicked hello world");
+  }
+</script>
+<body><div onclick="helloworld();">Hello, world!</div></body>
