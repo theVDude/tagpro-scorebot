@@ -51,6 +51,9 @@ io.sockets.on('connection', function (socket) {
       //mongodb.insert({"match": data.match, "score": data.score});
     //else
       //mongodb.update({"match": data.match, "score": data.score});
+    
+    //then send updated score to all connected users
+    socket.broadcast.emit('sbScoreUpdate', data);
   });
   socket.on('getScore', function() {
     io.sockets.emit('curScores', 'this is a test');
