@@ -1,3 +1,8 @@
+// Socket.io that listens for score updates, pushes them to database, and sends them back to clients on request
+// Author: thevdude (rb.cubed@gmail.com
+//
+// Node Modules: mongoose, socket.io
+
 var app = require('http').createServer(handler),
   io = require('socket.io').listen(app),
   fs = require('fs'),
@@ -16,7 +21,10 @@ var app = require('http').createServer(handler),
       redTeam: String,
       blue: Number,
       blueTeam: String
-    },
+    }
+  });
+var MatchModel = mongoose.model('Match', Match);
+
 
 app.listen(3030);
 
