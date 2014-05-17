@@ -1,6 +1,14 @@
 var scorebot = io.connect('http://home.shadomoonaussies.com:3030');
+
+//for now, we'll just put the most recent in a top left scoreboard
+var scoreboard = document.createElement('div');
+scoreboard.style.position = "absolute";
+scoreboard.style.top = "0px";
+scoreboard.style.left = "10px";
+
+
 scorebot.on('sbScoreUpdate', function (e) {
-  // get score update from server, do something with it!
+  scoreboard.innerHTML = e.score.r + " - " + e.score.b;
 }
 
 // this will make a call to the server to get the scores
