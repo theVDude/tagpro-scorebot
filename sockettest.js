@@ -1,62 +1,24 @@
-// Socket.io that listens for score updates, pushes them to database, and sends them back to clients on request
-// Author: thevdude (rb.cubed@gmail.com
+// Socket.io that listens for score updates, and sends them to clients
+// Author: thevdude (rb.cubed@gmail.com)
 //
-// Node Modules: mongoose, socket.io
+// Node Modules: socket.io
 
 var app = require('http').createServer(handler),
   io = require('socket.io').listen(app),
-  fs = require('fs'),
-  mongoose = require('mongoose'),
-  db = mongoose.connect('mongodb://localhost/test'),
-  Schema = mongoose.Schema,
-  Match = new Schema({
-    match: {
-      server: String,
-      map: String,
-      port: Number,
-      time: Number
-    },
-    score: {
-      red: Number,
-      redTeam: String,
-      blue: Number,
-      blueTeam: String
-    }
-  });
-var MatchModel = mongoose.model('Match', Match);
+  fs = require('fs')
 
 
 app.listen(3030);
 
 
 function handler (req, res) {
-  fs.readFile(__dirname + '/index.html',
-  function (err, data) {
-    if (err) {
-      res.writeHead(500);
-      return res.end('Error loading index.html');
-    }
-
-    res.writeHead(200);
-    res.end(data);
-  });
 }
 
 io.sockets.on('connection', function (socket) {
+  // All we really need is for this to pass the score along, so that's all it's doing.
   socket.on('message', function (data) {
     console.log(data);
-    //check if there is NOT matching matchID already
-    //if not data.matchID in db
-    //create match with 0 - 0 score
-      //mongodb.insert({"match": data.match, "score": data.score});
-    //else
-      //mongodb.update({"match": data.match, "score": data.score});
-    
-    //then send updated score to all connected users
     socket.broadcast.emit('sbScoreUpdate', data);
-  });
-  socket.on('getScore', function() {
-    io.sockets.emit('curScores', 'this is a test');
   });
   socket.on('disconnect', function() {
   });
