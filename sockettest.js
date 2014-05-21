@@ -17,6 +17,8 @@ function handler (req, res) {
 io.sockets.on('connection', function (socket) {
   // All we really need is for this to pass the score along, so that's all it's doing.
   socket.on('message', function (data) {
+  	data.redTeam = "red";
+  	data.blueTeam = "blue"; //<--- obviously will take care of that.
     console.log(data);
     socket.broadcast.emit('sbScoreUpdate', data);
   });
