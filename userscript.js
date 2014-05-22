@@ -9,13 +9,16 @@
 // ==/UserScript==
 
 var scorebot = io.connect('http://home.shadomoonaussies.com:3030');
-var matchID = {"server": tagpro.host.split('.')[0].split('-')[1], "port": tagpro.host.split(':')[1], "time": tagpro.gameEndsAt};
+var matchID = {};
+
 tagpro.on('time', function(e) {
-	if (tagpro.state === 1) {scorebot.emit('players', {"players" : tagpro.players, "matchID": matchID)};
+	if (tagpro.state === 1) {
+		matchID = { "server": tagpro.host.split('.')[0].split('-')[1], "port": tagpro.host.split(':')[1], "time": tagpro.gameEndsAt };
+		scorebot.emit('players', { "players" : tagpro.players, "matchID": matchID } );
+	}
 });
+
 // for now, we'll just put the most recent in a top left scoreboard
-// I'm going to talk to omicron about using prettyText to match all of the rest
-// of the text on the page, possibly replacing the FPS/PING/LOSS
 var scoreboard = document.createElement('div');
 scoreboard.style.position = "absolute";
 scoreboard.style.top = "0px";
@@ -23,8 +26,8 @@ scoreboard.style.left = "10px";
 
 
 scorebot.on('sbScoreUpdate', function (e) {
-  scoreboard.innerHTML = e.redTeam + " " + e.score.r + " - " + e.score.b + " " + e.blueTeam + "<p>" + e.time + "</p>";
-}
+	scoreboard.innerHTML = e.redTeam + " " + e.score.r + " - " + e.score.b + " " + e.blueTeam + "<p>" + e.time + "</p>";
+});
 
 function getTime() {
 	var totalSecs = (new Date() - tagpro.gameEndsAt)/1000;
@@ -40,7 +43,7 @@ tagpro.socket.on('score', function (e) {
 		"match": matchID, 
 		"score": { "r": e.r, "b": e.b },
 		"time": getTime() 
-    })
+	})
 });
 
 // TODO: Loop through players and determine teams from that, this will let us
