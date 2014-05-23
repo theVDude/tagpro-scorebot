@@ -39,7 +39,7 @@ function updateTeams (user) {
 }
 
 function getTeamAbbr (user) {
-	mdb.connect('mongodb://localhost/tagproteams', function (err, db){
+	mdb.connect('mongodb://192.168.1.15/tagproteams', function (err, db){
 		if (err) { return console.log(err); }
 		var teams = db.collection('teams');
 		updateTeams(user);
@@ -48,7 +48,6 @@ function getTeamAbbr (user) {
 
 
 io.sockets.on('connection', function (socket) {
-<<<<<<< HEAD
   // All we really need is for this to pass the score along, so that's all it's doing.
   //we will need to initialize the scores for each client, so we should check for repeats and 
   //initialize a new game on connection from a client.
@@ -74,7 +73,6 @@ io.sockets.on('connection', function (socket) {
     socket.emit('scores', scores);
   });
 
-=======
 	// All we really need is for this to pass the score along, so that's all it's doing.
 	socket.on('message', function (data) {
 		data.redTeam = redTeam;
@@ -90,5 +88,4 @@ io.sockets.on('connection', function (socket) {
 	});
 	socket.on('disconnect', function() {
 	});
->>>>>>> FETCH_HEAD
 });
