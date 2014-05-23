@@ -20,14 +20,18 @@ function handler (req, res) {
 
 function updateTeams (user) {
 	teams.findOne({players: user.name}, function (e, d){
-		if ( user.team === 1 ) {
-			redTeam = d.abbr;
-		} else if ( user.team === 2 ) {
-			blueTeam = d.abbr;
+		if (e) { console.log(e) } // I think this might happen if a name isn't in the db
+		else {
+			if ( user.team === 1 ) {
+				redTeam = d.abbr;
+			} else if ( user.team === 2 ) {
+				blueTeam = d.abbr;
+			}
 		}
 		if ( playerList.length && (redTeam === "" || blueTeam ==="" )){
 			updateTeams(playerList.shift());
 		}
+	}
 }
 
 function getTeamAbbr (user) {
