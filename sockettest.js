@@ -14,7 +14,7 @@ var app = require('http').createServer(handler),
   mdb = require('mongodb').MongoClient,
   teams
 
-function updateTeams (playerList, e) {
+function updateTeams (playerList, e, socket) {
   user = playerList.shift();
   console.log('user: ' + JSON.stringify(user));
   console.log('socket data: ' + JSON.stringify(e));
@@ -32,13 +32,13 @@ function updateTeams (playerList, e) {
     if ( scores[e.matchID].redAbbr != "" && scores[e.matchID].blueAbbr != "" ) {
       console.log('scores: ' + JSON.stringify(scores));
 
-      socket.broadcast.emit('scores', scores);
-      //io.sockets.emit('scores', scores);
+      //socket.broadcast.emit('scores', scores);
+      io.sockets.emit('scores', scores);
       return;
     }
     if ( playerList.length && (scores[e.matchID].redAbbr === "" || scores[e.matchID].blueAbbr === "") ) {
       console.log("let's do it again! " + JSON.stringify(playerList));
-      updateTeams(playerList, e);
+      updateTeams(playerList, e, socket);
     }
   });
 }
@@ -82,7 +82,7 @@ io.sockets.on('connection', function (socket) {
     mdb.connect('mongodb://192.168.1.15/tagproteams', function (err, db){
       if (err) { return console.log(err); }
       teams = db.collection('teams');
-      updateTeams(playerList, e);
+      updateTeams(playerList, e, socket);
     });
   });
 });
