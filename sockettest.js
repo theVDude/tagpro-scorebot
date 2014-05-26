@@ -24,38 +24,42 @@ function onPlayers (e) {
     }
 
     getTeamAbbr(playerList.shift());
-
-    if (!scores[e.matchID]) {
-      scores[e.matchID] = {redTeam: redAbbr, blueTeam: blueAbbr, redScore: 0, blueScore: 0};
-    }
-
-    // too sleepy to look up the right emit for this, I think it's socket.broadcast.emit
-    socket.emit('scores', scores);
 }
 
 function getTeamAbbr (user) {
-	mdb.connect('mongodb://localhost/tagproteams', function (err, db){
-		if (err) { return console.log(err); }
-		var teams = db.collection('teams');
-		updateTeams(user);
-	});
+  mdb.connect('mongodb://192.168.1.15/tagproteams', function (err, db){
+    if (err) { return console.log(err); }
+    var teams = db.collection('teams');
+    updateTeams(user);
+  });
 }
 
 
 function updateTeams (user) {
-	teams.findOne({players: user.name}, function (e, d){
-		if (e) { console.log(e) } // I think this might happen if a name isn't in the db
-		else {
-			if ( user.team === 1 ) {
-				redTeam = d.abbr;
-			} else if ( user.team === 2 ) {
-				blueTeam = d.abbr;
-			}
-		}
-		if ( playerList.length && (redTeam === "" || blueTeam ==="" )){
-			updateTeams(playerList.shift());
-		}
-	});
+  // teams not defined fuk u
+  teams.findOne({players: user.name}, function (e, d){
+    if (e) { console.log(e) } // I think this might happen if a name isn't in the db
+    else {
+      if ( user.team === 1 ) {
+        redAbbr = d.abbr;
+      } else if ( user.team === 2 ) {
+        blueAbbr = d.abbr;
+      }
+    }
+    if ( playerList.length && (redAbbr === "" || blueAbbr === "" )){
+      updateTeams(playerList.shift());
+    } else if ( redAbbr != "" && blueAbbr != "" ) {
+
+      // this shit has to be at the end of the call backs, or it'll happen before the abbr gets set
+      if (!scores[e.matchID]) {
+        scores[e.matchID] = {redTeam: redAbbr, blueTeam: blueAbbr, redScore: 0, blueScore: 0};
+      }
+
+      // too sleepy to look up the right emit for this, I think it's socket.broadcast.emit
+      // not that it matters, socket not defined. callbacks are too fucking annoying!
+      socket.emit('scores', scores);
+    }
+  });
 }
 
 app.listen(3030);
@@ -85,3 +89,4 @@ io.sockets.on('connection', function (socket) {
   socket.on('players', onPlayers);
 
 });
+
