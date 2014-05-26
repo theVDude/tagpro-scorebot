@@ -15,8 +15,8 @@ var app = require('http').createServer(handler),
 
 function onPlayers (e) {
     //find teams
-    var redTeam = "";
-    var blueTeam = "";
+    var redAbbr = "";
+    var blueAbbr = "";
     var playerList = [];
 
     for (x in e.players) {
