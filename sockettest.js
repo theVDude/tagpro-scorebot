@@ -13,7 +13,7 @@ var app = require('http').createServer(handler),
   fs = require('fs'),
   mdb = require('mongodb').MongoClient
 
-function onPlayer (e) {
+function onPlayers (e) {
     //find teams
     var redTeam = "";
     var blueTeam = "";
