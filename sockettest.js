@@ -31,10 +31,6 @@ function updateTeams (playerList, e) {
         blueAbbr = d.abbr;
       }
     }
-    if ( redAbbr === "" || blueAbbr === "" ){
-      console.log("let's do it again! " + JSON.stringify(playerList));
-      updateTeams(playerList, e);
-    }
     if ( redAbbr != "" && blueAbbr != "" ) {
       console.log('red abbr: ' + redAbbr + ' blue abbr: ' + blueAbbr);
       if (!scores[e.matchID]) {
@@ -46,6 +42,11 @@ function updateTeams (playerList, e) {
       // too sleepy to look up the right emit for this, I think it's socket.broadcast.emit
       socket.broadcast.emit('scores', scores);
       //io.sockets.emit('scores', scores);
+      return;
+    }
+    if ( redAbbr === "" || blueAbbr === "" ){
+      console.log("let's do it again! " + JSON.stringify(playerList));
+      updateTeams(playerList, e);
     }
   });
 }
