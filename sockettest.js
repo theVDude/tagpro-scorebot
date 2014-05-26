@@ -12,9 +12,7 @@ var app = require('http').createServer(handler),
   io = require('socket.io').listen(app),
   fs = require('fs'),
   mdb = require('mongodb').MongoClient,
-  teams,
-  redAbbr = "",
-  blueAbbr = ""
+  teams
 
 function updateTeams (playerList, e) {
   user = playerList.shift();
@@ -25,36 +23,27 @@ function updateTeams (playerList, e) {
     else {
       if ( user.team === 1 ) {
         console.log('red team: ' + d.abbr);
-        redAbbr = d.abbr;
+        scores[e.matchID].redAbbr = d.abbr;
       } else if ( user.team === 2 ) {
         console.log('blue team: ' + d.abbr);
-        blueAbbr = d.abbr;
+        scores[e.matchID].blueAbbr = d.abbr;
       }
     }
-    if ( redAbbr != "" && blueAbbr != "" ) {
-      console.log('red abbr: ' + redAbbr + ' blue abbr: ' + blueAbbr);
-      if (!scores[e.matchID]) {
-        scores[e.matchID] = {redTeam: redAbbr, blueTeam: blueAbbr, redScore: 0, blueScore: 0};
-      }
-
+    if ( scores[e.matchID].redAbbr != "" && scores[e.matchID].blueAbbr != "" ) {
       console.log('scores: ' + JSON.stringify(scores));
 
-      // too sleepy to look up the right emit for this, I think it's socket.broadcast.emit
       socket.broadcast.emit('scores', scores);
       //io.sockets.emit('scores', scores);
       return;
     }
-    if ( redAbbr === "" || blueAbbr === "" ){
+    if ( playerList.length && (scores[e.matchID].redAbbr === "" || scores[e.matchID].blueAbbr === "") ) {
       console.log("let's do it again! " + JSON.stringify(playerList));
       updateTeams(playerList, e);
     }
   });
 }
 
-
-
 app.listen(3030);
-
 
 function handler (req, res) {
 }
@@ -79,9 +68,10 @@ io.sockets.on('connection', function (socket) {
 
   socket.on('players', function(e) {
     //find teams
-    redAbbr = "";
-    blueAbbr = "";
     var playerList = [];
+    if (!scores[e.matchID]) {
+      scores[e.matchID] = {redAbbr: "", blueAbbr: "", redScore: 0, blueScore: 0};
+    }
 
     for (x in e.players) {
       playerList.push(e.players[x])
