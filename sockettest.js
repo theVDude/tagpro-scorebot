@@ -11,56 +11,46 @@ var scores = {};
 var app = require('http').createServer(handler),
   io = require('socket.io').listen(app),
   fs = require('fs'),
-  mdb = require('mongodb').MongoClient
+  mdb = require('mongodb').MongoClient,
+  teams,
+  redAbbr = "",
+  blueAbbr = ""
 
-function onPlayers (e) {
-    //find teams
-    var redAbbr = "";
-    var blueAbbr = "";
-    var playerList = [];
-
-    for (x in e.players) {
-      playerList.push(e.players[x])
-    }
-
-    getTeamAbbr(playerList.shift());
-}
-
-function getTeamAbbr (user) {
-  mdb.connect('mongodb://192.168.1.15/tagproteams', function (err, db){
-    if (err) { return console.log(err); }
-    var teams = db.collection('teams');
-    updateTeams(user);
-  });
-}
-
-
-function updateTeams (user) {
-  // teams not defined fuk u
-  teams.findOne({players: user.name}, function (e, d){
-    if (e) { console.log(e) } // I think this might happen if a name isn't in the db
+function updateTeams (playerList, e) {
+  user = playerList.shift();
+  console.log('user: ' + JSON.stringify(user));
+  console.log('socket data: ' + JSON.stringify(e));
+  teams.findOne({players: user.name}, function (err, d){
+    if (err) { console.log(err) } // I think this might happen if a name isn't in the db
     else {
       if ( user.team === 1 ) {
+        console.log('red team: ' + d.abbr);
         redAbbr = d.abbr;
       } else if ( user.team === 2 ) {
+        console.log('blue team: ' + d.abbr);
         blueAbbr = d.abbr;
       }
     }
-    if ( playerList.length && (redAbbr === "" || blueAbbr === "" )){
-      updateTeams(playerList.shift());
-    } else if ( redAbbr != "" && blueAbbr != "" ) {
-
-      // this shit has to be at the end of the call backs, or it'll happen before the abbr gets set
+    if ( redAbbr === "" || blueAbbr === "" ){
+      console.log("let's do it again! " + JSON.stringify(playerList));
+      updateTeams(playerList, e);
+    }
+    if ( redAbbr != "" && blueAbbr != "" ) {
+      console.log('red abbr: ' + redAbbr + ' blue abbr: ' + blueAbbr);
       if (!scores[e.matchID]) {
         scores[e.matchID] = {redTeam: redAbbr, blueTeam: blueAbbr, redScore: 0, blueScore: 0};
       }
 
+      console.log('scores: ' + JSON.stringify(scores));
+
       // too sleepy to look up the right emit for this, I think it's socket.broadcast.emit
-      // not that it matters, socket not defined. callbacks are too fucking annoying!
-      socket.emit('scores', scores);
+      socket.broadcast.emit('scores', scores);
+      //io.sockets.emit('scores', scores);
     }
   });
 }
+
+
 
 app.listen(3030);
 
@@ -86,7 +76,23 @@ io.sockets.on('connection', function (socket) {
   socket.on('disconnect', function() {
   });
 
-  socket.on('players', onPlayers);
+  socket.on('players', function(e) {
+    //find teams
+    var redAbbr = "";
+    var blueAbbr = "";
+    var playerList = [];
 
+    for (x in e.players) {
+      playerList.push(e.players[x])
+    }
+
+    console.log('player list: ' + JSON.stringify(playerList));
+
+    mdb.connect('mongodb://192.168.1.15/tagproteams', function (err, db){
+      if (err) { return console.log(err); }
+      teams = db.collection('teams');
+      updateTeams(playerList, e);
+    });
+  });
 });
 
