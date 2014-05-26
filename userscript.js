@@ -16,15 +16,16 @@ function getTime() {
 }
 
 var scorebot = io.connect('http://home.shadomoonaussies.com:3030');
+
+// consider moving this line into the tagpro.on('time'), if a user joins after the initial countdown it'll show the same match twice
 var matchID = {"server": tagpro.host.split('.')[0].split('-')[1], "port": tagpro.host.split(':')[1], "time": tagpro.gameEndsAt};
 
 tagpro.on('time', function(e) {
 	if (tagpro.state === 1) {scorebot.emit('players', {"players" : tagpro.players, "matchID": matchID})};
+	// let's reply to this with something so we know it's received?
 });
 
 // for now, we'll just put the most recent in a top left scoreboard
-// I'm going to talk to omicron about using prettyText to match all of the rest
-// of the text on the page, possibly replacing the FPS/PING/LOSS
 var scoreboard = document.createElement('div');
 scoreboard.style.position = "absolute";
 scoreboard.style.top = "0px";
@@ -49,17 +50,3 @@ tagpro.socket.on('score', function (e) {
 		"time": getTime() 
     })
 });
-
-// TODO: Loop through players and determine teams from that, this will let us
-// set up the ticker like "BNB 2 - 1 TA" and have them properly colored, as well.
-//
-// We only have to check for one player from each team matching, as well. Once
-// we have one from each team, we'll know colors and team names.
-// 
-// Should we check all the players just incase someone doesn't have their official name?
-
-// for (x in tagpro.players) {
-//   console.log(tagpro.players[x].name);
-// }
-
-// we'll want a roster object/array of some sort, I'll think over this at work
