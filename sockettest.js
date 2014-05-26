@@ -78,8 +78,8 @@ io.sockets.on('connection', function (socket) {
 
   socket.on('players', function(e) {
     //find teams
-    var redAbbr = "";
-    var blueAbbr = "";
+    redAbbr = "";
+    blueAbbr = "";
     var playerList = [];
 
     for (x in e.players) {
