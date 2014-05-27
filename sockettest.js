@@ -53,7 +53,7 @@ io.sockets.on('connection', function (socket) {
   //we will need to initialize the scores for each client, so we should check for repeats and 
   //initialize a new game on connection from a client.
 
-  socket.on('message', function (data) {
+  socket.on('scoreUpdate', function (data) {
     //data.redTeam = "red";
     //data.blueTeam = "blue"; //<--- obviously will take care of that.
     data.redAbbr = scores[data.matchID].redAbbr

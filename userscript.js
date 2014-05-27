@@ -43,7 +43,7 @@ scorebot.on('sbScoreUpdate', function (e) {
 
 // this will send the server a message with the score every time a cap happens, including a matchID
 tagpro.socket.on('score', function (e) { 
-	scorebot.emit('message', 
+	scorebot.emit('scoreUpdate', 
 	{
 		"match": matchID, 
 		"score": { "r": e.r, "b": e.b },
