@@ -18,6 +18,7 @@ function updateTeams (playerList, e, socket) {
   user = playerList.shift();
   console.log('user: ' + JSON.stringify(user));
   console.log('socket data: ' + JSON.stringify(e));
+  console.log('scores before: ' + JSON.stringify(scores[e.matchID]));
   teams.findOne({players: user.name}, function (err, d){
     if (err) { console.log(err) } // I think this might happen if a name isn't in the db
     else {
@@ -29,14 +30,14 @@ function updateTeams (playerList, e, socket) {
         scores[e.matchID].blueAbbr = d.abbr;
       }
     }
-    if ( scores[e.matchID].redAbbr != "" && scores[e.matchID].blueAbbr != "" ) {
+    if ( scores[e.matchID].redAbbr != undefined && scores[e.matchID].blueAbbr != undefined ) {
       console.log('scores: ' + JSON.stringify(scores));
 
-      //socket.broadcast.emit('scores', scores);
-      io.sockets.emit('scores', scores);
+      socket.broadcast.emit('scores', scores);
+      //io.sockets.emit('scores', scores);
       return;
     }
-    if ( playerList.length && (scores[e.matchID].redAbbr === "" || scores[e.matchID].blueAbbr === "") ) {
+    if ( playerList.length && (scores[e.matchID].redAbbr === undefined || scores[e.matchID].blueAbbr === undefined) ) {
       console.log("let's do it again! " + JSON.stringify(playerList));
       updateTeams(playerList, e, socket);
     }
@@ -55,8 +56,8 @@ io.sockets.on('connection', function (socket) {
   socket.on('message', function (data) {
     //data.redTeam = "red";
     //data.blueTeam = "blue"; //<--- obviously will take care of that.
-    data.redTeam = scores[data.matchID].redAbbr
-    data.blueTeam = scores[data.matchID].blueAbbr
+    data.redAbbr = scores[data.matchID].redAbbr
+    data.blueAbbr = scores[data.matchID].blueAbbr
     console.log(data);
     socket.broadcast.emit('sbScoreUpdate', data);
 
@@ -70,7 +71,9 @@ io.sockets.on('connection', function (socket) {
     //find teams
     var playerList = [];
     if (!scores[e.matchID]) {
-      scores[e.matchID] = {redAbbr: "", blueAbbr: "", redScore: 0, blueScore: 0};
+      scores[e.matchID] = {redScore: 0, blueScore: 0};
+      scores[e.matchID].redAbbr = '';
+      scores[e.matchID].blueAbbr = '';
     }
 
     for (x in e.players) {
