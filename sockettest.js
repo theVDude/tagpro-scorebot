@@ -97,7 +97,7 @@ io.sockets.on('connection', function (socket) {
 
     console.log('player list: ' + JSON.stringify(playerList));
 
-    mdb.connect('mongodb://192.168.1.15/tagproteams', function (err, db){
+    mdb.connect('mongodb://localhost/tagproteams', function (err, db){
       if (err) { return console.log(err); }
       teams = db.collection('teams');
       updateTeams(playerList, e, socket);
