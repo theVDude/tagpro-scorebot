@@ -75,7 +75,8 @@ io.sockets.on('connection', function (socket) {
     console.log(data);
     socket.broadcast.emit('sbScoreUpdate', data);
 
-    scores[data.matchID] = {redScore: data.score.r, blueScore: data.score.b};
+    scores[data.matchID].redScore = data.score.r;
+    scores[data.matchID].blueScore = data.score.b;
   });
 
   socket.on('disconnect', function() {
