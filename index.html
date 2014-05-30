@@ -1,0 +1,87 @@
+<html>
+<head>
+<script src="/socket.io/socket.io.js"></script>
+<script>
+var scorebot = io.connect('http://home.shadomoonaussies.com:3030/');
+var scores = {}
+var redScore = 0;
+var blueScore = 0;
+function sendPlayers(){
+    players = {
+        1: {"name": document.getElementsByName('rt')[0].value, "team": 1},
+        2: {"name": document.getElementsByName('rt')[1].value, "team": 1},
+        3: {"name": document.getElementsByName('rt')[2].value, "team": 1},
+        4: {"name": document.getElementsByName('rt')[3].value, "team": 1},
+        5: {"name": document.getElementsByName('bt')[0].value, "team": 2},
+        6: {"name": document.getElementsByName('bt')[1].value, "team": 2},
+        7: {"name": document.getElementsByName('bt')[2].value, "team": 2},
+        8: {"name": document.getElementsByName('bt')[3].value, "team": 2}
+    };
+    scorebot.emit('players', {"players": players, "matchID": "TEAM1MATCHID"});
+}
+function addRed(){
+    redScore += 1;
+    scorebot.emit('scoreUpdate', {"matchID": "TEAM1MATCHID", "score": {"r": redScore, "b": blueScore}, "time": "TEST"});
+}
+function addBlue(){
+    blueScore += 1;
+    scorebot.emit('scoreUpdate', {"matchID": "TEAM1MATCHID", "score": {"r": redScore, "b": blueScore}, "time": "TEST"});
+}
+
+scorebot.on('scores', function(e){
+    console.log(e)
+    scores = e;
+});
+
+scorebot.on('sbScoreUpdate', function(e){
+    document.getElementById('scores').innerHTML += scores[e.matchID].redAbbr + " " + e.score.r + " - " + e.score.b + " " + scores[e.matchID].blueAbbr + "<p>" + e.time + "</p><br />";
+});
+</script>
+<style type="text/css" >
+.container{
+    width: ;
+}
+.inputs{
+    float:left;
+}
+.blue{
+    margin-left: 3em;
+}
+.submitTeams{
+    clear:both;
+    background: orange;
+    text-align:center;
+}
+.addScoreRed{
+    background: red;
+    text-align:center;
+}
+.addScoreBlue{
+    background: blue;
+    text-align:center;
+}
+</style>
+</head>
+<body>
+<div class="inputs red"><p>Red Team</p>
+    Player 1: <input type="text" name="rt"></input><br />
+    Player 2: <input type="text" name="rt"></input><br />
+    Player 3: <input type="text" name="rt"></input><br />
+    Player 4: <input type="text" name="rt"></input>
+    <div class="addScoreRed" onclick="addRed();">
+        ADD SCORE TO RED
+    </div>
+</div>
+<div class="inputs blue"><p>Blue Team</p>
+    Player 1: <input type="text" name="bt"></input><br />
+    Player 2: <input type="text" name="bt"></input><br />
+    Player 3: <input type="text" name="bt"></input><br />
+    Player 4: <input type="text" name="bt"></input>
+    <div class="addScoreBlue" onclick="addBlue();">
+        ADD SCORE TO BLUE
+    </div>
+</div>
+    <div class="submitTeams" onclick="sendPlayers();"> SUBMIT TEAMS </div>
+<div id="scores"></div>
+</body>
+</html>

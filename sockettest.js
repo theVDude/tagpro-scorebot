@@ -24,20 +24,22 @@ function updateTeams (playerList, e, socket) {
     else {
       if ( user.team === 1 ) {
         console.log('red team: ' + d.abbr);
+        console.log('matchID: ' + e.matchID);
         scores[e.matchID].redAbbr = d.abbr;
       } else if ( user.team === 2 ) {
         console.log('blue team: ' + d.abbr);
+        console.log('matchID: ' + e.matchID);
         scores[e.matchID].blueAbbr = d.abbr;
       }
     }
-    if ( scores[e.matchID].redAbbr != undefined && scores[e.matchID].blueAbbr != undefined ) {
+    if ( scores[e.matchID].redAbbr != "" && scores[e.matchID].blueAbbr != "" ) {
       console.log('scores: ' + JSON.stringify(scores));
 
       socket.broadcast.emit('scores', scores);
       //io.sockets.emit('scores', scores);
       return;
     }
-    if ( playerList.length && (scores[e.matchID].redAbbr === undefined || scores[e.matchID].blueAbbr === undefined) ) {
+    if ( playerList.length && (scores[e.matchID].redAbbr == "" || scores[e.matchID].blueAbbr == "") ) {
       console.log("let's do it again! " + JSON.stringify(playerList));
       updateTeams(playerList, e, socket);
     }
@@ -47,6 +49,17 @@ function updateTeams (playerList, e, socket) {
 app.listen(3030);
 
 function handler (req, res) {
+  // test page!
+  fs.readFile(__dirname + '/index.html',
+  function (err, data) {
+    if (err) {
+      res.writeHead(500);
+      return res.end('Error loading index.html');
+    }
+
+    res.writeHead(200);
+    res.end(data);
+  });
 }
 
 io.sockets.on('connection', function (socket) {
@@ -56,6 +69,7 @@ io.sockets.on('connection', function (socket) {
   socket.on('scoreUpdate', function (data) {
     //data.redTeam = "red";
     //data.blueTeam = "blue"; //<--- obviously will take care of that.
+    console.log(scores[data.matchID]);
     data.redAbbr = scores[data.matchID].redAbbr
     data.blueAbbr = scores[data.matchID].blueAbbr
     console.log(data);
