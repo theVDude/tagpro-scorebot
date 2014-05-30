@@ -38,7 +38,7 @@ scorebot.on('scores', function(e) {
 }); 
 
 scorebot.on('sbScoreUpdate', function (e) {
-  scoreboard.innerHTML = e.redAbbr + " " + e.score.r + " - " + e.score.b + " " + e.blueAbbr + "<p>" + e.time + "</p>";
+  scoreboard.innerHTML = scores[e.matchID].redAbbr + " " + e.score.r + " - " + e.score.b + " " + scores[e.matchID].blueAbbr + "<p>" + e.time + "</p>";
 }
 
 // this will send the server a message with the score every time a cap happens, including a matchID
