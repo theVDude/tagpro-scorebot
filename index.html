@@ -4,10 +4,11 @@
 <script>
 var scorebot = io.connect('http://home.shadomoonaussies.com:3030/');
 var scores = {}
-var matchID = document.getElementsByName('matchID')[0].value;
+var matchID = ""
 var redScore = 0;
 var blueScore = 0;
 function sendPlayers(){
+    matchID = document.getElementsByName('matchID')[0].value;
     players = {
         1: {"name": document.getElementsByName('rt')[0].value, "team": 1},
         2: {"name": document.getElementsByName('rt')[1].value, "team": 1},
