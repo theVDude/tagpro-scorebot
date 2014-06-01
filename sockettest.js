@@ -19,8 +19,8 @@ function updateTeams (playerList, e, socket) {
   console.log('user: ' + JSON.stringify(user));
   console.log('socket data: ' + JSON.stringify(e));
   console.log('scores before: ' + JSON.stringify(scores[e.matchID]));
-  teams.findOne({players: user.name}, function (err, d){
-    if (err) { console.log(err) } // I think this might happen if a name isn't in the db
+  teams.findOne({players: user.name.toLowerCase()}, function (err, d){
+    if (err) { console.log("error: " + err) } // I think this might happen if a name isn't in the db
     else {
       if ( user.team === 1 ) {
         console.log('red team: ' + d.abbr);
