@@ -3,8 +3,6 @@
 //
 // Node Modules: socket.io, mongodb
 
-//we could assign match id's on this end by teams?
-
 var scores = {};
 // formatted as { {server: 'maptest', port: '8008', time: TIMESTAMP}: {redAbbr: "BNB", blueAbbr: "BC", redScore: 0, blueScore: 0}, ... }
 
@@ -16,34 +14,53 @@ var app = require('http').createServer(handler),
 
 function updateTeams (playerList, e, socket) {
   user = playerList.shift();
-  console.log('user: ' + JSON.stringify(user));
-  console.log('socket data: ' + JSON.stringify(e));
-  console.log('scores before: ' + JSON.stringify(scores[e.matchID]));
-  teams.findOne({players: user.name.toLowerCase()}, function (err, d){
-    if (err) { console.log("error: " + err) } // I think this might happen if a name isn't in the db
-    else if(d){
-      if ( user.team === 1) {
-        console.log('red team: ' + d.abbr);
-        console.log('matchID: ' + e.matchID);
-        scores[e.matchID].redAbbr = d.abbr;
-      } else if ( user.team === 2) {
-        console.log('blue team: ' + d.abbr);
-        console.log('matchID: ' + e.matchID);
-        scores[e.matchID].blueAbbr = d.abbr;
-      }
-    }
-    if ( scores[e.matchID].redAbbr != "" && scores[e.matchID].blueAbbr != "" ) {
-      console.log('scores: ' + JSON.stringify(scores));
-
-      socket.broadcast.emit('scores', scores);
-      //io.sockets.emit('scores', scores);
-      return;
-    }
-    if ( playerList.length && (scores[e.matchID].redAbbr == "" || scores[e.matchID].blueAbbr == "") ) {
-      console.log("let's do it again! " + JSON.stringify(playerList));
+  if (user.team == 1) {
+    if (!scores[e.matchID].redAbbr) {
+      console.log('red team not set trying');
+      teams.findOne({players: user.name.toLowerCase()}, function (err, d){
+        if(d){
+          console.log('red team set');
+          scores[e.matchID].redAbbr = d.abbr
+          if (playerList.length && !scores[e.matchID].blueAbbr){
+            console.log('red team set, blue team not set, trying next player');
+            updateTeams(playerList, e, socket);
+          } else {
+            console.log('both teams set, broadcast teams');
+            socket.broadcast.emit('scores', scores);
+          }
+        } else if (playerList.length) {
+          console.log('red team not set, trying next player');
+          updateTeams(playerList, e, socket);
+        }
+      });
+    } else if (scores[e.matchID].redAbbr) {
+      console.log('red team already set, trying next player');
       updateTeams(playerList, e, socket);
     }
-  });
+  } else {
+    if (!scores[e.matchID].blueAbbr) {
+      console.log('blue team not set trying')
+      teams.findOne({players: user.name.toLowerCase()}, function (err, d){
+        if(d){
+          console.log('blue team set');
+          scores[e.matchID].blueAbbr = d.abbr
+          if (playerList.length && !scores[e.matchID].redAbbr){
+            console.log('blue team set, red team not set, trying next player');
+            updateTeams(playerList, e, socket);
+          } else {
+            console.log('both teams set, broadcast teams');
+            socket.broadcast.emit('scores', scores);
+          }
+        } else if (playerList.length) {
+          console.log('blue team not set, trying next player');
+          updateTeams(playerList, e, socket);
+        }
+      });
+    } else if (scores[e.matchID].blueAbbr) {
+      console.log('blue team already set, trying next player');
+      updateTeams(playerList, e, socket);
+    }
+  }
 }
 
 app.listen(3030);
@@ -65,6 +82,7 @@ function handler (req, res) {
 io.sockets.on('connection', function (socket) {
   //we will need to initialize the scores for each client, so we should check for repeats and 
   //initialize a new game on connection from a client.
+  socket.emit('scores', scores);
 
   socket.on('scoreUpdate', function (data) {
     //data.redTeam = "red";
